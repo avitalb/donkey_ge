@@ -1,0 +1,8 @@
+# credit goes to https://dl.acm.org/doi/pdf/10.1145/1274000.1274089
+<reg-expression> ::= <term>| <term>`|'<reg-expression>
+<term> ::= <factor>| <factor><term>
+<factor> ::= <atom>| <atom><meta-character>
+<atom> ::=`.'| `('<reg-expression>`)'| `['<character-set>`]'| `[^'<character-set>`]'
+<character-set> ::= <character-item> | <character-item><character-set>
+<character-item> ::= `a'| `b'| ...| `z'|  0  |  1  | ...|  9
+<meta-character> ::= `*'| `+'
