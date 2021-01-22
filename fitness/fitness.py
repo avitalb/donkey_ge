@@ -120,10 +120,23 @@ class SRRegex(SRFitness):
         """
 
         targets = self.exemplars["train"]["outputs"]
-        regex = Regex(self.exemplars, self.symbolic_expression)
-        predictions = regex.run() 
-        fitness = SRRegex.get_fitness(targets, predictions)
 
+        try:
+            regex = Regex(self.exemplars, self.symbolic_expression)
+        except re.error:
+            print(self.symbolic_expression)
+            return -10
+
+        try:
+            predictions = regex.run() 
+        except re.error:
+            print(self.symbolic_expression)
+            return -10
+        except Exception as e:
+            print(e, self.symbolic_expression)
+            return -10
+        fitness = SRRegex.get_fitness(targets, predictions)
+        fitness -= 0.01 * len(self.symbolic_expression)
         return fitness
 
     @staticmethod
@@ -137,6 +150,7 @@ class SRRegex(SRFitness):
             # compare result and prediction
             if target == prediction:
                 fitness += 1 
+
         return fitness
 
 
