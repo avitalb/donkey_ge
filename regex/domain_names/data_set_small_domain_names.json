@@ -1,0 +1,1 @@
+{"train": {"inputs": ["sohu.com", "qq.com", "tmail.com", "youtube.com", "baidu.com", "logitechlogitechglobal.112.2o7.net", "analytics.247sports.com", "01mspmd5yalky8.com", "www.2no.co", "www.analytics.247sports.com"], "outputs": [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]}, "test": {"inputs": ["google.com", "facebook.com", "0byv9mgbn0.com", "2no.co"], "outputs": [0, 0, 1, 1]}}
