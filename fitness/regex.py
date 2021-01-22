@@ -25,7 +25,7 @@ class Regex:
     def run(self):
         outputs = []
         for exemplar in self.exemplars["train"]["inputs"]:
-            signal.alarm(2)
+            signal.alarm(1)
             result = self.pattern.match(exemplar)
             if result is None:
                 result = 0
