@@ -4,9 +4,11 @@ environment with the actions. It computes a fitness score based on the measureme
 from the engagement environment.
 """
 import json
+import re
 from typing import List, Dict, Any, Tuple, Callable
 
 from fitness.symbolic_regression import SymbolicRegression
+from fitness.regex import Regex
 from fitness.game_theory_game import PrisonersDilemma, HawkAndDove
 from heuristics.donkey_ge import Individual, DEFAULT_FITNESS, FitnessFunction
 from util import utils
@@ -97,6 +99,44 @@ class SRExpression(SRFitness):
             fitnesses[i] = fitness
 
         fitness = mean(fitnesses)
+        return fitness
+
+class SRRegex(SRFitness):
+    def __init__(self, param: Dict[str, Any]) -> None:
+        """
+        Set class attributes for exemplars and symbolic expression
+        """
+        with open(param["exemplars"], "r") as f:
+            self.exemplars = json.load(f)
+        self.symbolic_expression = eval(param["symbolic_expression"])  # pylint: disable=eval-used
+
+    def __call__(self, fcn_str: str, cache):
+        self.symbolic_expression = fcn_str
+        return self.run()
+
+    def run(self):
+        """
+        Evaluate exemplars with the symbolic expression.
+        """
+
+        targets = self.exemplars["train"]["outputs"]
+        regex = Regex(self.exemplars, self.symbolic_expression)
+        predictions = regex.run() 
+        fitness = SRRegex.get_fitness(targets, predictions)
+
+        return fitness
+
+    @staticmethod
+    def get_fitness(targets: List[float], predictions: List[float]) -> float:
+        """
+        Returns fitnesses (sum of correct matches)
+        """
+        fitness = 0
+
+        for target, prediction in zip(targets, predictions):
+            # compare result and prediction
+            if target == prediction:
+                fitness += 1 
         return fitness
 
 
