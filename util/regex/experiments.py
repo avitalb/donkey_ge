@@ -1,3 +1,4 @@
+import sys
 import argparse
 import multiprocessing
 import copy
@@ -10,7 +11,7 @@ from sklearn.model_selection import KFold
 import yaml
 
 from heuristics.donkey_ge import run as donkey_run
-from regex.analyse_results import main as analyse_results_folder
+from util.regex.analyse_results import main as analyse_results_folder
 
 
 def create_data_sets(in_file, n_folds: int = 10):
@@ -65,7 +66,7 @@ def evaluate_run(args: List[str]) -> str:
 
 def main(in_file: str, n_runs: int, n_folds: int, output_folder: str) -> None:
     configs = []
-    os.makedirs("results", exist_ok=True)
+    os.makedirs(output_folder, exist_ok=True)
     for i in range(n_folds):
         fold_cfg = in_file.replace(".yaml", f"_fold_{i}.yaml")
         with open(fold_cfg, "r") as fd:
@@ -126,4 +127,4 @@ if __name__ == "__main__":
     create_data_sets(data_set, n_folds)
     create_configurations(configuration_file, n_folds)
     main(configuration_file, n_runs, n_folds, output_folder)
-    analyse_results_folder(output_folder)
+    analyse_results_folder([output_folder])

@@ -1,7 +1,9 @@
+import sys
 import argparse
 import os
 import json
 from typing import Any, Dict, List
+import sys
 
 import pandas as pd
 
@@ -59,6 +61,7 @@ def calculate_results(in_file: str) -> None:
 
 
 def main(in_files: List[str]) -> None:
+    print(in_files)
     for in_file in in_files:
         print(in_file)
         if not os.path.exists(DF_PATTERN.format(in_file)):
