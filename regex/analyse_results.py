@@ -1,3 +1,4 @@
+import argparse
 import os
 import json
 from typing import Any, Dict, List
@@ -9,7 +10,7 @@ RESULT_PREFIX = "r_"
 DF_PATTERN = "{}_df.json"
 
 
-def main(in_file: str) -> None:
+def get_confusion_matrix(in_file: str) -> None:
     df = pd.DataFrame(columns=('fold', 'run', 'TP', 'FN', 'FP', 'TN', 'split'))
     for file_ in os.listdir(in_file):
         if file_.startswith(RESULT_PREFIX):
@@ -35,7 +36,8 @@ def main(in_file: str) -> None:
     with open(DF_PATTERN.format(in_file), 'w') as fd:
         json.dump(df.to_json(), fd)
 
-def calculate_results(in_file):
+        
+def calculate_results(in_file: str) -> None:
     with open(DF_PATTERN.format(in_file), 'r') as fd:
         df = pd.read_json(json.load(fd))
         
@@ -51,11 +53,14 @@ def calculate_results(in_file):
         acc = df_[['TP', 'TN']].sum().sum()
         print(f"Acc {acc}, {acc / all_ex:.3f}")
 
-    
-if __name__ == '__main__':
-    in_files = ('results')
+
+def main(in_files: List[str]) -> None:
     for in_file in in_files:
         print(in_file)
         if not os.path.exists(DF_PATTERN.format(in_file)):
-            main(in_file)
+            get_confusion_matrix(in_file)
         calculate_results(in_file)
+
+if __name__ == '__main__':
+        in_files = ('results')
+        main(in_files)

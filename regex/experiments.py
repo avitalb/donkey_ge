@@ -1,3 +1,4 @@
+import argparse
 import multiprocessing
 import copy
 import os
@@ -9,7 +10,7 @@ from sklearn.model_selection import KFold
 import yaml
 
 from heuristics.donkey_ge import run as donkey_run
-
+from regex.analyse_results import main as analyse_results_folder
 
 def create_data_sets(in_file, n_folds: int=10):
     with open(in_file, 'r') as fd:
@@ -58,7 +59,7 @@ def evaluate_run(args : List[str]) -> str:
     return f'DONE {args}'
 
 
-def main(in_file: str, n_runs: int, n_folds: int) -> None:
+def main(in_file: str, n_runs: int, n_folds: int, output_folder: str) -> None:
     NOVELTY SEARCH
     configs = []
     os.makedirs("results", exist_ok=True)
@@ -70,7 +71,7 @@ def main(in_file: str, n_runs: int, n_folds: int) -> None:
         for j in range(n_runs):
             config = copy.deepcopy(org_config)
             config["seed"] = config.get("seed", 1) + j
-            config["output_dir"] = f"results/r_{i}_{j}"
+            config["output_dir"] = f"{output_folder}/r_{i}_{j}"
             configs.append(config)
             
     # Evaluate runs
@@ -80,9 +81,55 @@ def main(in_file: str, n_runs: int, n_folds: int) -> None:
         assert len(configs) == len(results)
         print(results)
 
+
+def parse_args(args : List[str]) -> Dict[str, Any]:
+    parser = argparse.ArgumentParser(description="Create and run regex experiments")
+    parser.add_argument(
+        "--data_set",
+        type=str,
+        required=True,
+        help="JSON data set file. E.g. regex/domain_names/data_set_kilo_domain_names.json",
+    )
+    parser.add_argument(
+        "--configuration_file",
+        type=str,
+        required=True,
+        help="YAML configuration file. E.g. regex/domain_names/domain_names.yaml",
+    )
+    parser.add_argument(
+        "--output_folder",
+        type=str,
+        required=True,
+        help="Name of output folder E.g. results",
+    )
+    parser.add_argument(
+        "--n_folds",
+        type=int,
+        default=2,
+        help="Number of folds. E.g. 10",
+    )
+    parser.add_argument(
+        "--n_runs",
+        type=int,
+        default=2,
+        help="Number of independent runs per fold. E.g. 30",
+    )
+    _args = parser.parse_args(args)
+    with open(_args.configuration_file, "r") as configuration_file:
+        settings = yaml.load(configuration_file, Loader=yaml.FullLoader)
+
+    settings.update(vars(_args))
+    return settings
+
+
 if __name__ == '__main__':
-    n_folds = 10
-    n_runs = 10
-    create_data_sets('regex/domain_names/data_set_kilo_domain_names.json', n_folds)
-    create_configurations('regex/domain_names/domain_names.yaml', n_folds)
-    main('regex/domain_names/domain_names.yaml', n_runs, n_folds)
+    params = parse_args(sys.argv[1:])
+    n_folds = params["n_folds"]
+    n_runs = params["n_runs"]
+    data_set = params["data_set"]
+    configuration_file = params["configuration_file"]
+    output_folder = params["output_folder"]
+    create_data_sets(data_set, n_folds)
+    create_configurations(configuration_file, n_folds)
+    main(configuration_file, n_runs, n_folds, output_folder)
+    analyse_results_folder(output_folder)
