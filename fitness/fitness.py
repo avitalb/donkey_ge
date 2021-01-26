@@ -111,9 +111,33 @@ class SRRegex(SRFitness):
         self.symbolic_expression = eval(param["symbolic_expression"])  # pylint: disable=eval-used
 
     def __call__(self, fcn_str: str, cache):
-        self.symbolic_expression = fcn_str
-        return self.run()
+        key: str = "{}".format(fcn_str)
+        if key in cache:
+            fitness: int = cache[key]
+        else:
+            self.symbolic_expression = fcn_str
+            fitness = self.run()
+            cache[key] = fitness
+            
+        return fitness
 
+    def test_performance(self, fcn_str: str) -> Dict[str, str]:
+        regex = Regex(self.exemplars, self.symbolic_expression)
+        results = {"regexp": fcn_str}
+        for split_ in ("train", "test"):
+            targets = self.exemplars[split_]["outputs"]            
+            predictions = regex.run(split=split_) 
+            fitness, confusion_matrix = SRRegex.get_fitness(targets, predictions)
+            print(f"{split_} {fitness}")
+            print("\tT\tF")
+            row = '\t'.join(map(str, confusion_matrix[0]))
+            print(f"T\t{row}")
+            row = '\t'.join(map(str, confusion_matrix[1]))
+            print(f"F\t{row}")
+            results[split_] = str(confusion_matrix)
+            
+        return results
+    
     def run(self):
         """
         Evaluate exemplars with the symbolic expression.
@@ -124,18 +148,18 @@ class SRRegex(SRFitness):
         try:
             regex = Regex(self.exemplars, self.symbolic_expression)
         except re.error:
-            print(self.symbolic_expression)
+            print('ERROR complie', self.symbolic_expression)
             return -10
 
         try:
             predictions = regex.run() 
         except re.error:
-            print(self.symbolic_expression)
+            print('ERROR match', self.symbolic_expression)
             return -10
         except Exception as e:
-            print(e, self.symbolic_expression)
+            print('ERROR timeout', e, self.symbolic_expression)
             return -10
-        fitness = SRRegex.get_fitness(targets, predictions)
+        fitness, _ = SRRegex.get_fitness(targets, predictions)
         fitness -= 0.01 * len(self.symbolic_expression)
         return fitness
 
@@ -145,13 +169,13 @@ class SRRegex(SRFitness):
         Returns fitnesses (sum of correct matches)
         """
         fitness = 0
-
+        confusion_matrix = [[0, 0], [0, 0]]
         for target, prediction in zip(targets, predictions):
             # compare result and prediction
-            if target == prediction:
-                fitness += 1 
+            confusion_matrix[target][prediction] += 1
 
-        return fitness
+        fitness = confusion_matrix[0][0] + confusion_matrix[1][1]
+        return fitness, confusion_matrix
 
 
 class SRExemplar(SRFitness):

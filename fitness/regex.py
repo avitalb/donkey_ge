@@ -22,9 +22,9 @@ class Regex:
         self.pattern = re.compile(self.symbolic_expression)
         signal.signal(signal.SIGALRM, self.run)
         
-    def run(self):
+    def run(self, split: str="train"):
         outputs = []
-        for exemplar in self.exemplars["train"]["inputs"]:
+        for exemplar in self.exemplars[split]["inputs"]:
             signal.alarm(1)
             result = self.pattern.match(exemplar)
             if result is None:

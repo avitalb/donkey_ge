@@ -505,7 +505,10 @@ def search_loop(population: Population, param: Dict[str, Any]) -> Individual:
         # Increase the generation counter
         generation += 1
 
-    write_run_output(generation, stats, param)
+    print_cache_stats(generation, param)
+    _ = get_out_file_name("donkey_ge", param)
+    if param.get("save_output", False):
+        write_run_output(generation, stats, param)
 
     return best_ever
 
@@ -956,7 +959,12 @@ def run(param: Dict[str, Any]) -> Individual:
 
     # Display results
     print("Time: {:.3f} Best solution:{}".format(time.time() - start_time, best_ever))
-
+    if fitness_function.__class__.__name__ == "SRRegex":
+        results = fitness_function.test_performance(best_ever.phenotype)
+        out_file = os.path.join(param["output_dir"], "conf_mat.json")
+        with open(out_file, 'w') as fd:
+            json.dump(results, fd)
+        
     return best_ever
 
 
