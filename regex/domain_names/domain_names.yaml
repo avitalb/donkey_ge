@@ -1,8 +1,8 @@
-population_size: 8 # increase when code runs 
+population_size: 640 # increase when code runs 
 max_length: 100
-elite_size: 2
-generations: 2 # increase over time
-tournament_size: 2
+elite_size: 64
+generations: 40 # increase over time
+tournament_size: 7
 seed: 1
 crossover_probability: 0.8
 mutation_probability: 0.1
