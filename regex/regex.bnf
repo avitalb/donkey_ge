@@ -1,0 +1,9 @@
+# credit goes to https://dl.acm.org/doi/pdf/10.1145/1274000.1274089
+<reg-expression> ::= <term> | <term>\|<reg-expression>
+<term> ::= <factor> | <factor><term>
+<factor> ::= <atom> | <atom><meta-character>
+<atom> ::= . | (<reg-expression>) | [<character-set>]| [^<character-set>]
+<character-set> ::= <character-item> | <character-item><character-set>
+<character-item> ::= a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | -
+<meta-character> ::= *| +
+

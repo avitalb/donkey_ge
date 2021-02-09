@@ -1,0 +1,15 @@
+population_size: 64 # increase when code runs 
+max_length: 100
+elite_size: 6
+generations: 4 # increase over time
+tournament_size: 7
+seed: 1
+crossover_probability: 0.8
+mutation_probability: 0.1
+codon_size: 1000000 # (1 mil)
+integer_input_element_max: 1000000 # really large (1 mil)
+bnf_grammar: "regex/regex.bnf"
+fitness_function:
+    name: "fitness.fitness.SRRegex"
+    exemplars: "regex/domain_names/data_set_kilo_domain_names.json"
+    symbolic_expression: None
